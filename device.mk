@@ -40,7 +40,7 @@ PRODUCT_PACKAGES += \
 
 # Rootdir
 PRODUCT_COPY_FILES += \
-    $(LOCAL_PATH)/rootdir/etc/init.xiaomi.rc:$(TARGET_COPY_OUT_VENDOR)/etc/init/hw/init.xiaomi.rc
+    $(LOCAL_PATH)/configs/etc/init.xiaomi.rc:$(TARGET_COPY_OUT_VENDOR)/etc/init/hw/init.xiaomi.rc
 
 # Sensors
 PRODUCT_COPY_FILES += \
