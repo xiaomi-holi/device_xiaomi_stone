@@ -34,10 +34,6 @@ DEVICE_PACKAGE_OVERLAYS += \
     $(LOCAL_PATH)/overlay \
     $(LOCAL_PATH)/overlay-lineage
 
-# RIL
-PRODUCT_PACKAGES += \
-    CarrierConfigOverlay
-
 # Rootdir
 PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/configs/etc/init.xiaomi.rc:$(TARGET_COPY_OUT_VENDOR)/etc/init/hw/init.xiaomi.rc
@@ -49,10 +45,6 @@ PRODUCT_COPY_FILES += \
 # Soong namespaces
 PRODUCT_SOONG_NAMESPACES += \
     $(LOCAL_PATH)
-
-# WiFi
-PRODUCT_PACKAGES += \
-    WifiOverlay
 
 # Inherit from vendor blobs
 $(call inherit-product, vendor/xiaomi/stone/stone-vendor.mk)
