@@ -1,4 +1,4 @@
-#  Device Tree for POCO X5 5G (moonstone) / Redmi Note 12 5G | Note 12R Pro ( sunstone )
+#  Unified Device Tree for POCO X5 5G ( moonstone ) / Redmi Note 12 5G | Note 12R Pro ( sunstone )
 
 ## Spec Sheet
 

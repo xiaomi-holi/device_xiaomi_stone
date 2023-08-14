@@ -8,7 +8,7 @@
 
 set -e
 
-export DEVICE=moonstone
+export DEVICE=stone
 export DEVICE_COMMON=sm6375-common
 export VENDOR=xiaomi
 

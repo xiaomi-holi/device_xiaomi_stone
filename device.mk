@@ -55,4 +55,4 @@ PRODUCT_PACKAGES += \
     WifiOverlay
 
 # Inherit from vendor blobs
-$(call inherit-product, vendor/xiaomi/moonstone/moonstone-vendor.mk)
+$(call inherit-product, vendor/xiaomi/stone/stone-vendor.mk)
