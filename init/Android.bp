@@ -14,3 +14,10 @@ cc_library_static {
         "system/libbase/include"
     ]
 }
+
+prebuilt_etc {
+    name: "init.xiaomi.rc",
+    src: "init.xiaomi.rc",
+    sub_dir: "init/hw",
+    vendor: true,
+}

@@ -17,6 +17,10 @@ PRODUCT_AAPT_PREF_CONFIG := xhdpi
 TARGET_SCREEN_HEIGHT := 2400
 TARGET_SCREEN_WIDTH := 1080
 
+# Init scripts
+PRODUCT_PACKAGES += \
+    init.xiaomi.rc
+
 # NFC
 PRODUCT_PACKAGES += \
     android.hardware.nfc@1.2-service.st
@@ -33,10 +37,6 @@ PRODUCT_COPY_FILES += \
 DEVICE_PACKAGE_OVERLAYS += \
     $(LOCAL_PATH)/overlay \
     $(LOCAL_PATH)/overlay-lineage
-
-# Rootdir
-PRODUCT_COPY_FILES += \
-    $(LOCAL_PATH)/init/init.xiaomi.rc:$(TARGET_COPY_OUT_VENDOR)/etc/init/hw/init.xiaomi.rc
 
 # Soong namespaces
 PRODUCT_SOONG_NAMESPACES += \
