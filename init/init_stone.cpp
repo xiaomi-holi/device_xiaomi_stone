@@ -14,86 +14,95 @@
  * limitations under the License.
  */
 
-#include <android-base/logging.h>
 #include <android-base/properties.h>
-#define _REALLY_INCLUDE_SYS__SYSTEM_PROPERTIES_H_
-#include <sys/_system_properties.h>
 #include <sys/sysinfo.h>
 
+#include <cstdlib>
+#include <cstring>
+#include <vector>
+#define _REALLY_INCLUDE_SYS__SYSTEM_PROPERTIES_H_
+#include <sys/_system_properties.h>
+
+#include "property_service.h"
+#include "vendor_init.h"
+
 using android::base::GetProperty;
-using std::string;
 
-std::string hwname = GetProperty("ro.boot.hwname", "");
+// list of partitions to override props
+std::vector<std::string> ro_props_default_source_order = {
+    "", "odm.", "odm_dlkm.", "product.", "system.", "system_ext.", "vendor.", "vendor_dlkm.",
+};
 
-void property_override(string prop, string value)
-{
-    auto pi = (prop_info*) __system_property_find(prop.c_str());
+void property_override(char const prop[], char const value[], bool add = true) {
+    auto pi = (prop_info *)__system_property_find(prop);
 
-    if (pi != nullptr)
-        __system_property_update(pi, value.c_str(), value.size());
-    else
-        __system_property_add(prop.c_str(), prop.size(), value.c_str(), value.size());
-}
-
-void load_moonstone_p_global() {
-    property_override("ro.product.mod_device", "moonstone_p_global");
-}
-
-void load_moonstone_in() {
-    property_override("ro.product.device", "moonstone");
-    property_override("ro.product.model", "POCO X5 5G");
-    property_override("ro.product.name", "moonstone_in");
-    property_override("ro.product.mod_device", "moonstone_in_global");
-}
-
-void load_sunstone_cn() {
-    property_override("ro.product.brand", "Redmi");
-    property_override("ro.product.device", "sunstone");
-    property_override("ro.product.model", "Redmi Note 12 5G");
-    property_override("ro.product.name", "sunstone_cn");
-    property_override("ro.product.mod_device", "sunstone_cn_global");
-}
-
-void load_sunstone_global() {
-    property_override("ro.product.brand", "Redmi");
-    property_override("ro.product.device", "sunstone");
-    property_override("ro.product.model", "Redmi Note 12 5G");
-    property_override("ro.product.name", "sunstone_global");
-    property_override("ro.product.mod_device", "sunstone_global");
-
-}
-
-void vendor_load_properties() {
-    std::string region = GetProperty("ro.boot.hwc", "");
-    std::string hwname = GetProperty("ro.boot.hwname", "");
-    if (access("/system/bin/recovery", F_OK) != 0) {
-        if (hwname == "moonstone") {
-            if (region.find("India") != std::string::npos) {
-               load_moonstone_in();
-            } else {
-               load_moonstone_p_global();
-             }
-        if (hwname == "sunstone") {
-            if (region.find("China") != std::string::npos) {
-               load_sunstone_cn();
-           } else {
-               load_sunstone_global();
-        }
-      }
+    if (pi != nullptr) {
+        __system_property_update(pi, value, strlen(value));
+    } else if (add) {
+        __system_property_add(prop, strlen(prop), value, strlen(value));
     }
-  }
+}
 
-    // Set hardware revision
-    property_override("ro.boot.hardware.revision", GetProperty("ro.boot.hwversion", "").c_str());
+void set_ro_build_prop(const std::string &source, const std::string &prop,
+                       const std::string &value, bool product = false) {
+    std::string prop_name;
 
-    // Set dalvik heap configuration
-    std::string heapstartsize, heapgrowthlimit, heapsize, heapminfree,
-			heapmaxfree, heaptargetutilization;
+    if (product) {
+        prop_name = "ro.product." + source + prop;
+    } else {
+        prop_name = "ro." + source + "build." + prop;
+    }
 
+    property_override(prop_name.c_str(), value.c_str(), true);
+}
+
+void set_device_props(const std::string fingerprint, const std::string description,
+                      const std::string brand, const std::string device, const std::string model, const std::string mod_device) {
+    for (const auto &source : ro_props_default_source_order) {
+        set_ro_build_prop(source, "fingerprint", fingerprint);
+        set_ro_build_prop(source, "brand", brand, true);
+        set_ro_build_prop(source, "device", device, true);
+        set_ro_build_prop(source, "model", model, true);
+    }
+
+    property_override("ro.build.fingerprint", fingerprint.c_str());
+    property_override("ro.build.description", description.c_str());
+    property_override("ro.product.mod_device", mod_device.c_str());
+    property_override("bluetooth.device.default_name", model.c_str());
+}
+
+void load_device_properties() {
+    // Detect variant and override properties
+    std::string hwname = GetProperty("ro.boot.hwname", "");
+    std::string hwversion = GetProperty("ro.boot.hwversion", "");
+
+    if (hwname == "moonstone") {
+        set_device_props(
+            "POCO/moonstone_p_global/moonstone:13/TKQ1.221114.001/V14.0.4.0.TMPMIXM:user/release-keys",
+            "qssi-user 13 TKQ1.221114.001 V14.0.4.0.TMPMIXM release-keys", "moonstone_global", "POCO", "moonstone",
+            "POCO X5 5G");
+    } else if (hwname == "sunstone") {
+        set_device_props(
+            "Redmi/sunstone/sunstone:13/TKQ1.221013.002/V14.0.4.0.TMQMIXM:user/release-keys",
+            "qssi-user 13 TKQ1.221114.001 V14.0.4.0.TMQMIXM release-keys", "sunstone_global", "Redmi", "sunstone",
+            "Redmi Note 12 5G");
+    }
+    property_override("vendor.boot.hwversion", hwversion.c_str());
+    property_override("ro.boot.product.hardware.sku", hwname.c_str());
+}
+
+void load_dalvik_properties() {
+    char const *heapstartsize;
+    char const *heapgrowthlimit;
+    char const *heapsize;
+    char const *heapminfree;
+    char const *heapmaxfree;
+    char const *heaptargetutilization;
     struct sysinfo sys;
+
     sysinfo(&sys);
 
-    if (sys.totalram > 5072ull * 1024 * 1024) {
+    if (sys.totalram >= 5ull * 1024 * 1024 * 1024) {
         // from - phone-xhdpi-6144-dalvik-heap.mk
         heapstartsize = "16m";
         heapgrowthlimit = "256m";
@@ -101,7 +110,7 @@ void vendor_load_properties() {
         heaptargetutilization = "0.5";
         heapminfree = "8m";
         heapmaxfree = "32m";
-    } else if (sys.totalram > 3072ull * 1024 * 1024) {
+    } else if (sys.totalram >= 3ull * 1024 * 1024 * 1024) {
         // from - phone-xhdpi-4096-dalvik-heap.mk
         heapstartsize = "8m";
         heapgrowthlimit = "192m";
@@ -110,13 +119,7 @@ void vendor_load_properties() {
         heapminfree = "8m";
         heapmaxfree = "16m";
     } else {
-        // from - phone-xhdpi-2048-dalvik-heap.mk
-        heapstartsize = "8m";
-        heapgrowthlimit = "192m";
-        heapsize = "512m";
-        heaptargetutilization = "0.75";
-        heapminfree = "512k";
-        heapmaxfree = "8m";
+        return;
     }
 
     property_override("dalvik.vm.heapstartsize", heapstartsize);
@@ -125,4 +128,9 @@ void vendor_load_properties() {
     property_override("dalvik.vm.heaptargetutilization", heaptargetutilization);
     property_override("dalvik.vm.heapminfree", heapminfree);
     property_override("dalvik.vm.heapmaxfree", heapmaxfree);
+}
+
+void vendor_load_properties() {
+    load_dalvik_properties();
+    load_device_properties();
 }
