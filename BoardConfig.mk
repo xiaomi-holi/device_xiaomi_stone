@@ -16,9 +16,6 @@ TARGET_SCREEN_DENSITY := 440
 TARGET_INIT_VENDOR_LIB := //$(DEVICE_PATH):init_stone
 TARGET_RECOVERY_DEVICE_MODULES := init_stone
 
-# NFC
-DEVICE_MANIFEST_FILE := $(DEVICE_PATH)/manifest_nfc.xml
-
 # OTA Assert
 TARGET_OTA_ASSERT_DEVICE := moonstone,sunstone
 
