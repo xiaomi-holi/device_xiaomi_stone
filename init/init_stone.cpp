@@ -78,13 +78,13 @@ void load_device_properties() {
 
     if (hwname == "moonstone") {
         set_device_props(
-            "POCO/moonstone_p_global/moonstone:13/TKQ1.221114.001/V14.0.4.0.TMPMIXM:user/release-keys",
-            "qssi-user 13 TKQ1.221114.001 V14.0.4.0.TMPMIXM release-keys", "moonstone_global", "POCO", "moonstone",
+            "POCO/moonstone_p_global/moonstone:13/TKQ1.221114.001/V14.0.5.0.TMPMIXM:user/release-keys",
+            "qssi-user 13 TKQ1.221114.001 V14.0.5.0.TMPMIXM release-keys", "moonstone_global", "POCO", "moonstone",
             "POCO X5 5G");
     } else if (hwname == "sunstone") {
         set_device_props(
-            "Redmi/sunstone/sunstone:13/TKQ1.221013.002/V14.0.4.0.TMQMIXM:user/release-keys",
-            "qssi-user 13 TKQ1.221114.001 V14.0.4.0.TMQMIXM release-keys", "sunstone_global", "Redmi", "sunstone",
+            "Redmi/sunstone/sunstone:13/TKQ1.221013.002/V14.0.5.0.TMQMIXM:user/release-keys",
+            "qssi-user 13 TKQ1.221114.001 V14.0.5.0.TMQMIXM release-keys", "sunstone_global", "Redmi", "sunstone",
             "Redmi Note 12 5G");
     }
     property_override("vendor.boot.hwversion", hwversion.c_str());
